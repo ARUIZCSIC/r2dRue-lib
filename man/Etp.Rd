@@ -10,11 +10,11 @@ Given a set of images of temperature and solar radiation, the potential evapotra
 }
 \usage{
 petHgsm(Tmin,Tmax,Tmed,Rad,month)
-batchPetHgsm(date, Tmin, Tmax, Tmed, Rad, outFl, ...)
+batchPetHgsm(monthIni, Tmin, Tmax, Tmed, Rad, outFl, ...)
 }
 \arguments{
-  \item{date}{
-A vector with the year and the month of the first image dataset. Like  c(1970,1) for january 1970
+  \item{monthIni}{
+A integer between 1 and 12 that is the month of the first image in the dataset.
 }
   \item{month}{
 The month to calc the PET (numeric 1 to 12)
@@ -42,9 +42,7 @@ A list of file names to save the results
 Any unmatched parameter will be passed to the writeGDAL routine.
 }
 }
-\details{
 
-}
 \value{
 petHgsm returns a spatialGridDataFrame representing the potential evapotranspiration. batchEtp write to disc, the calculated images for each set of images provided.
 }

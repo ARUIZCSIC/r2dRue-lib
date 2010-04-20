@@ -38,8 +38,6 @@ ya vere
 Returns no value, but save to disk seven image files with the values of
 }
 \author{
-Gabriel del Barrio, Marieta SanJuan, Alberto Ruiz
+Gabriel del Barrio, Marieta SanJuan & Alberto Ruiz
 }
-\examples{
 
-}

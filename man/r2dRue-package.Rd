@@ -13,15 +13,14 @@
 \tabular{ll}{
 Package: \tab r2dRue\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 1.0.1\cr
 Date: \tab 2009-12-17\cr
 License: \tab GPL\cr
 LazyLoad: \tab yes\cr
 }
 }
 \author{
-Gabriel del Barrio, Juan Puigdefabregas, Maria E. Sanjuan,
-Marion Stellmes & Alberto Ruiz\cr
+Gabriel del Barrio, Juan Puigdefabregas, Maria E. Sanjuan & Alberto Ruiz\cr
 Maintainer:
 Alberto Ruiz, <aruiz@eeza.csic.es>
 }

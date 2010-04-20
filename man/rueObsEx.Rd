@@ -57,8 +57,7 @@ The output of each function is a SpatialGridDataFrame class
 Article submitted and under revision.
 }
 \author{
-Gabriel del Barrio, Juan Puigdefabregas, Maria E. Sanjuan,
-Marion Stellmes & Alberto Ruiz
+Gabriel del Barrio, Juan Puigdefabregas, Maria E. Sanjuan & Alberto Ruiz
 }
 \examples{
 #not work...

@@ -12,7 +12,7 @@ This radiation will change during the day and will be different at different
 latitudes and in different seasons.
 }
 \usage{
-solarRad(img, day = 15)
+solarRad(img, day)
 solarRad12M(img, outFl, ...)
 }
 

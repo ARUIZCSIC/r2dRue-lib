@@ -1,3 +1,6 @@
+library(rgdal,sp)
+library(matrixStats)
+
 ###############################################
 # NAME: rgf.create
 # PURPOSE:
@@ -48,23 +51,41 @@ rgf.read = function (inFl){
 #       silent: logical Flag; if TRUE, comments outputs are supressed
 # OUTPUTS:
 #       A SpatialGridDataFrame/SpatialPixelDataframe class. 
+# CHANGES: 20/04/2010 - añadir comprobacion de parametros 
+# CHANGES: 20/04/2010 - bug en comportamiento de silent
+# CHANGES: 20/04/2010 - bug en comportamiento de order
 ###############################################
 
 rgf.when = function (inFl,ref,order='FIRST',silent=FALSE) {
-	if (!silent) print(paste('Searching for',order,'ocurrences'))
+	#comprobacion de parametros
+	if (!(order %in% c('FIRST','LAST'))) stop('order must be FIRST or LAST')
+	
+	if (!silent) print(paste('Searching for',order,'ocurrences'))	
+	#leer imagen de referencia
 	ref=readGDAL(ref,silent=TRUE)
-	n=length(inFl)
-
+	
+	#iniciar variables 
+	n=length(inFl)	
 	when=0
 	aux=0
-	pb =txtProgressBar(min=0,max=n,char='*',width=20,style=3)
-	for (i in 1:n) {
+	if (!silent) pb =txtProgressBar(min=1,max=n,char='*',width=20,style=3)
+	if (order=='FIRST') {range=n:1} #comparar imagenes de atras hacia adelante, para quedarme con la mas reciente
+	else {range=1:n} #comparar de delante hacia atras...
+	
+	#bucle que recorre inFl buscando concidencias con ref 
+	#a cada paso asigna a los pixeles coincidentes su posicion en la lista 
+	#realiza un overlay transparente entre when y msk
+	#las ultimas coincidencias encontradas, machacan a las previas...
+	for (i in range) {
 		aux=readGDAL(inFl[i],silent=TRUE)
 		msk=(aux$band1==ref$band1)
-		when=(when*!msk) + (i*msk)
-		setTxtProgressBar(pb, i)
+		when=(when*!msk) + (i*msk) #overlay transparente entre when y msk 
+		if (!silent) { 
+			if (order=='FIRST') {setTxtProgressBar(pb, n-i+1)}
+			else {setTxtProgressBar(pb,i)}
+		}
 	}
-	close(pb)
+	if (!silent) close(pb)
 	aux$band1=when
 	aux
 }
@@ -75,6 +96,8 @@ rgf.when = function (inFl,ref,order='FIRST',silent=FALSE) {
 # PURPOSE:
 # INPUTS:
 # OUTPUTS:
+# CHANGES:	28/01/2010 	- Bug en el conteo del % realizado para operaciones no acumulativas
+#				- 
 ###############################################
 
 rgf.summary = function(inFl,outFl,step=length(inFl),fun='SUM',silent=FALSE,...) {
@@ -122,7 +145,7 @@ rgf.summary = function(inFl,outFl,step=length(inFl),fun='SUM',silent=FALSE,...) 
 	 	#num de bloques de size LinesToRead en la imagen
 	 	nblocks=ceiling(rows/linesToRead)
 
-		if (!silent) pb =txtProgressBar(min=0,max=nah*nblocks,char='*',width=20,style=3)
+		if (!silent) pb =txtProgressBar(min=0,max=nah*nblocks-1,char='*',width=20,style=3)
 
 		for(i in 0:(nah-1)){
 			dat=0
@@ -143,7 +166,7 @@ rgf.summary = function(inFl,outFl,step=length(inFl),fun='SUM',silent=FALSE,...) 
 				 	outdf=cbind(outdf,Strip$band1)
 				} 
 				#actualizo progressbar		
-				if (!silent) setTxtProgressBar(pb, k*(i+1))
+				if (!silent) setTxtProgressBar(pb, i*nblocks+k)
 
 				outdf=outdf[,-1]
 				switch (fun,
@@ -169,8 +192,11 @@ rgf.summary = function(inFl,outFl,step=length(inFl),fun='SUM',silent=FALSE,...) 
 # PURPOSE:
 # INPUTS:
 # OUTPUTS:
+# CHANGES: 20/04/2010 - bug en el computo de Lat
+# CHANGES: 20/04/2010 - cambio en el computo de dia
+# CHANGES: 20/04/2010 - quitar valor por defecto de day
 ###############################################
-solarRad = function (img, day=15) {
+solarRad = function (img, day) {
 	
 	#comprobar que sea latlong
 	#	
@@ -179,14 +205,14 @@ solarRad = function (img, day=15) {
 	nRow=img@grid@cells.dim[2]
 	nCol=img@grid@cells.dim[1]
 	rowSize=img@grid@cellsize[2]
-	lowerY=img@coords[3]
+	lowerY=img@coords[3] #Y del punto central
 	lat=as.matrix(img)
 
-	lat[1:nCol,]=rep((1:nRow*rowSize)+lowerY,each=nCol) #imagen donde cada pixel tiene el valor de su coord Y 
+	lat[1:nCol,]=rep((0:(nRow-1)*rowSize)+lowerY,each=nCol) #imagen donde cada pixel tiene el valor central de su coord Y 
 	
 	lat=lat*DTOR
 	
-	dia=2*pi/365*day
+	dia=2*pi/365*(day-1)
       DST=1.00011+0.034221*cos(dia)+0.00128*sin(dia)+0.000719*cos(2*dia)+0.000777*sin(2*dia)
       DEC=0.006918-0.399912*cos(dia)+0.070257*sin(dia)-0.006758*cos(2*dia)+0.000907*sin(2*dia)-0.002697*cos(3*dia)+0.00148*sin(3*dia)
       AGH=acos(-tan(lat)*tan(DEC))
@@ -234,42 +260,38 @@ petHgsm= function(Tmin, Tmax, Tmed, Rad, month){
 # PURPOSE:
 # INPUTS:
 # OUTPUTS:
+# CHANGES: 20/04/2010 - cambio de parametro date por monthIni
+# CHANGES: 20/04/2010 - bug en el calculo del indice de Rad (implica reescritura de codigo)
 ###############################################
-batchPetHgsm= function(date,Tmin,Tmax,Tmed,Rad,outFl,...) {
+batchPetHgsm= function(monthIni,Tmin,Tmax,Tmed,Rad,outFl,...) {
 	# comprobacion de los parametros
-	if (length(date)!=2) stop('date parameter like: date=c(2001,1)')
+	if (!(monthIni %in% 1:12)) stop('monthIni must be in 1:12')
 	if (length(Tmax)==length(Tmin) && length(Tmax)==length(Tmed)){
 		meses=length(Tmax)
 	}
 	else stop('Tmax,Tmin,Tmed must be of the same length')
-
+	
 	DiasMes=c(31,28,31,30,31,30,31,31,30,31,30,31)
 	NumMes=c('00','01','02','03','04','05','06','07','08','09','10','11','12')
 
-
+	#Asignamos mesRad
+  mesRad=monthIni
 	for (i in 1:meses){
-		#Asignamos Mes y year
-      	if (date[2] >12) {
-	      	date[2]=1
-		      date[1]=date[1]+1
-      	}
-
-	      #Read de los ficheros
-	  	tx=readGDAL(Tmax[i])
-	  	tn=readGDAL(Tmin[i])
-	  	tm=readGDAL(Tmed[i])
-
-		j=ifelse(i%%12>0,i%%12,12) #adecuar indice i a indice de rad que va de 1 a 12
-	  	rd=readGDAL(Rad[j])
+	  #Read de los ficheros
+	  tx=readGDAL(Tmax[i])
+	  tn=readGDAL(Tmin[i])
+	  tm=readGDAL(Tmed[i])
+		rd=readGDAL(Rad[mesRad])
 
 		#Calculo Etp mes i
-		img=petHgsm(Tmin=tn,Tmax=tx,Tmed=tm,Rad=rd,month=date[2])
+		img=petHgsm(Tmin=tn,Tmax=tx,Tmed=tm,Rad=rd,month=mesRad)
 
-	      writeGDAL(img, outFl[i],...)
+	  writeGDAL(img, outFl[i],...)
 
-       	#Pasamos al mes siguiente
-	      date[2]=date[2]+1
-    }
+    #Pasamos al mes siguiente
+	  mesRad=mesRad+1
+	  if (mesRad>12) mesRad=1	      
+  }
 }
 
 

@@ -42,13 +42,7 @@ This feature is not intended to be of general utility. It is used in internal pr
 \value{
 An ASCII or binary file.
 }
-\references{
 
-}
 \author{
 Alberto Ruiz. aruiz@eeza.csic.es
-}
-\examples{
-
-
 }
