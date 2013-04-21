@@ -8,7 +8,8 @@ Stacks bands from raster image files
 Concatenates multiple raster files into a single file. Provides support to several interleaved schemas: BIP (Bands Interleaved by Pixel), BIL (Band Interleaved by Line) or BSQ (Band Sequential). The output concatenated file may be saved in Ascii or binary format.
 }
 \usage{
-rasterStack(inFl, outFN, asc = FALSE, zip = FALSE, dec = 3, interleave = "BIP", silent = FALSE)
+rasterStack(inFl, outFN, asc = FALSE, zip = FALSE, dec = 3, 
+interleave = "BIP", silent = FALSE)
 }
 \arguments{
   \item{inFl}{

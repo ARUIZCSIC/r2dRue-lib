@@ -10,7 +10,8 @@ functions to plot several results of 2dRue analisys
 incomplete help
 }
 \usage{
-r2dRplot(o, type = "rain", scope = "run", var = "vi", pixel = 1, col = c("blue", "green4", "salmon", "gray"))
+r2dRplot(o, type = "rain", scope = "run", var = "vi", pixel = 1, 
+col = c("blue", "green4", "salmon", "gray"))
 }
 
 \arguments{

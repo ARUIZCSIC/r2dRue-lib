@@ -17,15 +17,15 @@ The r2dRue software library contains all the relevant functions to compute the q
 
 The recommended sequence of functions for a concrete analysis is: rgf.create (optional), petHgsm (optional), edit2dRfile, read2dRfile, showInfo, assessment, monitoring and summarize. Alternatively, individual functions such as rgf.summary can be used to explore the data set and/or conduct a step-by-step analysis.
 
-The r2dRue library has been developed within the EC project "A Surveillance System for Assessing and Monitoring of Desertification" (DeSurvey, Integrated Project No. 003950). See details at \url{www.desurvey.net}
+The following projects have funded this package: DeSurvey IP (EC FP6 Integrated Project contract No. 003950), DesertWatch (ESA DUE contract No. 18487/04/I-LG) and MesoTopos (Junta de Andalucia PE ref. RNM-4023).
 
 }
 \details{
 \tabular{ll}{
 Package: \tab r2dRue\cr
 Type: \tab Package\cr
-Version: \tab 1.0.2\cr
-Date: \tab 2009-12-17\cr
+Version: \tab 1.0.4\cr
+Date: \tab 2013-06-28\cr
 License: \tab GPL\cr
 LazyLoad: \tab yes\cr
 }
