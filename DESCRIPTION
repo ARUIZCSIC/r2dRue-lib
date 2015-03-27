@@ -12,6 +12,7 @@ Description: 2dRUE is a methodology to make a diagnostic of land
         FP6 Integrated Project contract No. 003950), DesertWatch (ESA
         DUE contract No. 18487/04/I-LG) and MesoTopos (Junta de
         Andalucia PE ref. RNM-4023).
+        vamos a por la siguiente version.
 License: GPL
 LazyLoad: yes
 Depends: rgdal,sp,matrixStats
